@@ -3,17 +3,11 @@ from wagalytics import __version__
 from codecs import open
 from os import path
 
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
-
 setup(
     name='wagalytics',
     version=__version__,
     description='Show Google Analytics data in Wagtail.',
-    long_description=long_description,
+    long_description='See https://github.com/tomdyson/wagalytics for details',
     url='https://github.com/tomdyson/wagalytics',
     author='Tom Dyson',
     author_email='tom+wagalytics@torchbox.com',
@@ -30,6 +24,7 @@ setup(
     keywords='development',
     packages=find_packages(),
     include_package_data=True,
+    zip_safe=False,
     install_requires=[
         "wagtail>=0.8.7",
         "Django>=1.7.1",

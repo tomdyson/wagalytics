@@ -1,6 +1,6 @@
 # Wagtail Analytics
 
-This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI.
+This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 1.3.
 
 ![Screenshot](screenshot.png)
 
@@ -21,3 +21,4 @@ This module provides a simple dashboard of Google Analytics data, integrated int
 
  - [ ] allow configuration of results
  - [ ] better styling, e.g. using [chart.js](https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/)
+ - [ ] fail gracefully if the relevant settings aren't available
