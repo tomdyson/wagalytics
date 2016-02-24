@@ -1,0 +1,111 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags i18n staticfiles gravatar %}
+
+{% block extra_css %}
+    {% include "wagtailadmin/pages/_editor_css.html" %}
+    {{ block.super }}
+    <script>
+        (function(w,d,s,g,js,fs){
+          g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(f){this.q.push(f);}};
+          js=d.createElement(s);fs=d.getElementsByTagName(s)[0];
+          js.src='https://apis.google.com/js/platform.js';
+          fs.parentNode.insertBefore(js,fs);js.onload=function(){g.load('analytics');};
+        }(window,document,'script'));
+    </script>
+{% endblock %}
+
+{% block titletag %}{% trans 'Analytics' %}{% endblock %}
+
+{% block content %}
+    {% trans "30 day analytics" as title_trans %}
+    {% include "wagtailadmin/shared/header.html" with title=title_trans %}
+
+    <div class="nice-padding">
+        <h2>Sessions</h2>
+        <div id="sessions-line-chart-container">Loading...</div>
+        <h2>Popular content</h2>
+        <div id="popular-pages-table-container">Loading...</div>
+        <h2>Top referrers</h2>
+        <div id="top-referrers-table-container">Loading...</div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+    gapi.analytics.ready(function() {
+
+      // Authorize the user with an access token obtained server-side.
+      gapi.analytics.auth.authorize({
+        'serverAuth': {
+          'access_token': '{{ access_token }}'
+        }
+      });
+
+      var sessionsLineChart = new gapi.analytics.googleCharts.DataChart({
+        query: {
+          'ids': '{{ ga_view_id }}',
+          'start-date': '30daysAgo',
+          'end-date': 'today',
+          'metrics': 'ga:sessions',
+          'dimensions': 'ga:date'
+        },
+        chart: {
+          'container': 'sessions-line-chart-container',
+          'type': 'LINE',
+          'options': {
+            'width': '100%',
+            'height': '200px',
+          }
+        }
+      });
+      sessionsLineChart.execute();
+
+      var popularPagesTable = new gapi.analytics.googleCharts.DataChart({
+        query: {
+          'ids': '{{ ga_view_id }}',
+          'start-date': '30daysAgo',
+          'end-date': 'today',
+          'metrics': 'ga:pageviews',
+          'dimensions': 'ga:hostname,ga:pagePath',
+          'sort': '-ga:pageviews',
+          'max-results': 25
+        },
+        chart: {
+          'container': 'popular-pages-table-container',
+          'type': 'TABLE',
+          'options': {
+            'width': '100%',
+            'page': 'enable',
+            'pageSize': 5
+          }
+        }
+      });
+      popularPagesTable.execute();
+
+      var topReferrersTable = new gapi.analytics.googleCharts.DataChart({
+        query: {
+          'ids': '{{ ga_view_id }}',
+          'start-date': '30daysAgo',
+          'end-date': 'today',
+          'metrics': 'ga:pageviews',
+          'dimensions': 'ga:source',
+          'sort': '-ga:pageviews',
+          'max-results': 25
+        },
+        chart: {
+          'container': 'top-referrers-table-container',
+          'type': 'TABLE',
+          'options': {
+            'width': '100%',
+            'page': 'enable',
+            'pageSize': 5
+          }
+        }
+      });
+      topReferrersTable.execute();
+
+    });
+    </script>
+{% endblock %}
