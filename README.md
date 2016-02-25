@@ -17,6 +17,8 @@ This module provides a simple dashboard of Google Analytics data, integrated int
  - `GA_KEY_FILEPATH = '/path/to/secure/directory/your-key.json'`
  - `GA_VIEW_ID = 'ga:xxxxxxxx'`
 
+If you get CryptoUnavailableError errors, you probably need to `pip install PyOpenSSL` and/or `pip install pycrypto`. See [StackOverflow](http://stackoverflow.com/questions/27305867/google-api-access-using-service-account-oauth2client-client-cryptounavailableerr).
+
 ### TODO
 
  - [ ] allow configuration of results
