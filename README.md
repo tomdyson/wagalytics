@@ -22,3 +22,34 @@ This module provides a simple dashboard of Google Analytics data, integrated int
  - [ ] allow configuration of results
  - [ ] better styling, e.g. using [chart.js](https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/)
  - [ ] fail gracefully if the relevant settings aren't available
+ - [ ] use insert_global_admin_css hook when Wagtail 1.4 is released
+ - [ ] add per-page results
+
+### Notes
+
+Per-page results:
+
+```javascript
+// https://developers.google.com/analytics/devguides/reporting/core/v3/coreDevguide
+
+function makeApiCall() {
+    params = {
+        'ids': 'ga:81871816',
+        'start-date': 'yesterday',
+        'end-date': 'today',
+        'metrics': 'ga:pageviews',
+        'filters': 'ga:pagePath==/features/'
+    }
+    apiQuery = gapi.client.analytics.data.ga.get(params)
+    apiQuery.execute(handleCoreReportingResults);
+}
+
+function handleCoreReportingResults(results) {
+    if (!results.error) {
+        if (results.rows && results.rows.length)
+            console.log(results.rows[0][0]);
+    } else {
+        alert('Something broke: ' + results.message);
+    }
+}
+```
