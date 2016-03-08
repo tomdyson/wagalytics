@@ -7,6 +7,7 @@ This module provides a simple dashboard of Google Analytics data, integrated int
 ## Instructions
 
 1. [Create a service account](https://ga-dev-tools.appspot.com/embed-api/server-side-authorization) and download the JSON key
+1. Make sure the [Analytics API is enabled for your project](https://console.developers.google.com/apis/api/analytics/overview) (See [issue 2](https://github.com/tomdyson/wagalytics/issues/2))
 1. Add the [service account email address](https://console.developers.google.com/permissions/serviceaccounts) as a read-only user in Google Analytics (account > property > user management)
 1. [Find the ID](https://lucidpress.zendesk.com/hc/en-us/articles/207335356) for your Google Analytics property
 1. Store your JSON key somewhere safe
