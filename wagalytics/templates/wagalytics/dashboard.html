@@ -34,6 +34,15 @@
 {% block extra_js %}
     {{ block.super }}
     <script>
+    if (!window.google || !window.google.load) {
+      var tag = document.createElement('script');
+      tag.type = 'text/javascript';
+      tag.src = 'https://www.google.com/jsapi';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(tag, s);
+    }
+    </script>
+    <script>
     gapi.analytics.ready(function() {
 
       // Authorize the user with an access token obtained server-side.
