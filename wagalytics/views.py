@@ -1,5 +1,5 @@
 import json
-from oauth2client.client import SignedJwtAssertionCredentials
+from oauth2client.service_account import ServiceAccountCredentials
 from django.shortcuts import redirect, render
 from django.conf import settings
 
@@ -9,16 +9,12 @@ def get_access_token(ga_key_filepath):
     # Defines a method to get an access token from the credentials object.
     # The access token is automatically refreshed if it has expired.
 
-    # Load the key file's private data.
-    with open(ga_key_filepath) as key_file:
-        _key_data = json.load(key_file)
-
     # The scope for the OAuth2 request.
     SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
 
     # Construct a credentials objects from the key data and OAuth2 scope.
-    _credentials = SignedJwtAssertionCredentials(
-        _key_data['client_email'], _key_data['private_key'], SCOPE)
+    _credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        ga_key_filepath, SCOPE)
 
     return _credentials.get_access_token().access_token
 
