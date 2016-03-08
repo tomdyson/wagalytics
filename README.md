@@ -55,3 +55,7 @@ function handleCoreReportingResults(results) {
     }
 }
 ```
+
+### Contributors
+
+Thijs Kramer
