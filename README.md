@@ -66,6 +66,12 @@ $('#settings ul[class="objects"]').append(
 )
 ```
 
+Access the path of the page currently being edited with
+
+```javascript
+$('a[class="status-tag primary"]').attr('href')
+```
+
 ### Contributors
 
 Thijs Kramer
