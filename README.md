@@ -58,6 +58,14 @@ function handleCoreReportingResults(results) {
 }
 ```
 
+Add to settings tab with something like
+
+```javascript
+$('#settings ul[class="objects"]').append(
+  '<li class="object"><h2><label>Analytics</label></h2><fieldset></fieldset></li>'
+)
+```
+
 ### Contributors
 
 Thijs Kramer
