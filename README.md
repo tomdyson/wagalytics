@@ -31,46 +31,7 @@ If you get CryptoUnavailableError errors, you probably need to `pip install PyOp
 
 ### Notes
 
-Per-page results:
-
-```javascript
-// https://developers.google.com/analytics/devguides/reporting/core/v3/coreDevguide
-
-function makeApiCall() {
-    params = {
-        'ids': 'ga:81871816',
-        'start-date': 'yesterday',
-        'end-date': 'today',
-        'metrics': 'ga:pageviews',
-        'filters': 'ga:pagePath==/features/'
-    }
-    apiQuery = gapi.client.analytics.data.ga.get(params)
-    apiQuery.execute(handleCoreReportingResults);
-}
-
-function handleCoreReportingResults(results) {
-    if (!results.error) {
-        if (results.rows && results.rows.length)
-            console.log(results.rows[0][0]);
-    } else {
-        alert('Something broke: ' + results.message);
-    }
-}
-```
-
-Add to settings tab with something like
-
-```javascript
-$('#settings ul[class="objects"]').append(
-  '<li class="object"><h2><label>Analytics</label></h2><fieldset></fieldset></li>'
-)
-```
-
-Access the path of the page currently being edited with
-
-```javascript
-$('a[class="status-tag primary"]').attr('href')
-```
+This module doesn't help with recording user activity. See [the Wagtail docs](http://docs.wagtail.io/en/v1.3.1/topics/writing_templates.html?highlight=analytics#varying-output-between-preview-and-live) and [StackOverflow](http://stackoverflow.com/a/1272312/181793) for pointers on how to avoid gathering data during preview and testing.
 
 ### Contributors
 
