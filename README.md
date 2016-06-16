@@ -27,7 +27,7 @@ If you get CryptoUnavailableError errors, you probably need to `pip install PyOp
  - [ ] better styling, e.g. using [chart.js](https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/)
  - [ ] Throw an error if the relevant settings aren't available
  - [ ] use insert_global_admin_css hook when Wagtail 1.4 is released
- - [ ] add per-page results
+ - [ ] add [per-page results](https://github.com/tomdyson/wagalytics/issues/12)
 
 ### Notes
 
