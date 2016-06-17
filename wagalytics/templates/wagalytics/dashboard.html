@@ -41,15 +41,15 @@
       var s = document.getElementsByTagName('script')[0];
       s.parentNode.insertBefore(tag, s);
     }
-    </script>
-    <script>
+
     gapi.analytics.ready(function() {
 
-      // Authorize the user with an access token obtained server-side.
-      gapi.analytics.auth.authorize({
-        'serverAuth': {
-          'access_token': '{{ access_token }}'
-        }
+      $.get( "{% url 'wagalytics_token' %}", function(data) {
+            gapi.analytics.auth.authorize({
+              'serverAuth': {
+              'access_token': data
+            }
+        })
       });
 
       var sessionsLineChart = new gapi.analytics.googleCharts.DataChart({

@@ -2,7 +2,8 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials
 from django.shortcuts import redirect, render
 from django.conf import settings
-
+from django.views.decorators.cache import cache_page
+from django.http import HttpResponse
 
 def get_access_token(ga_key_filepath):
     # from https://ga-dev-tools.appspot.com/embed-api/server-side-authorization/
@@ -18,8 +19,13 @@ def get_access_token(ga_key_filepath):
 
     return _credentials.get_access_token().access_token
 
+@cache_page(3600)
+def token(request):
+    # return a cached access token to ajax clients
+    access_token = get_access_token(settings.GA_KEY_FILEPATH)
+    return HttpResponse(access_token)
+
 def dashboard(request):
     return render(request, 'wagalytics/dashboard.html', {
-        'access_token': get_access_token(settings.GA_KEY_FILEPATH),
         'ga_view_id': settings.GA_VIEW_ID,
     })
