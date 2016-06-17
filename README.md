@@ -26,7 +26,7 @@ If you get CryptoUnavailableError errors, you probably need to `pip install PyOp
  - [ ] allow configuration of results
  - [ ] better styling, e.g. using [chart.js](https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/)
  - [ ] Throw an error if the relevant settings aren't available
- - [ ] add [per-page results](https://github.com/tomdyson/wagalytics/issues/12)
+ - [x] add [per-page results](https://github.com/tomdyson/wagalytics/issues/12)
 
 ### Notes
 
