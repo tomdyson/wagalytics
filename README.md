@@ -1,9 +1,11 @@
 ![version_button](https://img.shields.io/pypi/v/wagalytics.svg)
 # Wagtail Analytics
 
-This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 1.3.
+This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 1.4+.
 
 ![Screenshot](screenshot.png)
+
+![Screenshot](wagalytics-page-stats.png)
 
 ## Instructions
 
