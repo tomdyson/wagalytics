@@ -21,7 +21,7 @@ def register_styleguide_menu_item():
     return MenuItem(
         _('Analytics'),
         urlresolvers.reverse('wagalytics_dashboard'),
-        classnames='icon icon-fa-bar-chart',
+        classnames='icon icon-site',
         order=1000
     )
 
