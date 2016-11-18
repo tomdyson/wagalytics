@@ -36,7 +36,7 @@ def get_access_token_from_str(ga_key_content):
 @cache_page(3600)
 def token(request):
     # return a cached access token to ajax clients
-    if (settings.GA_KEY_CONTENT != ''):
+    if (hasattr(settings, 'GA_KEY_CONTENT') and settings.GA_KEY_CONTENT != ''):
         access_token = get_access_token_from_str(settings.GA_KEY_CONTENT)
     else:
         access_token = get_access_token(settings.GA_KEY_FILEPATH)
