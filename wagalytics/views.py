@@ -19,10 +19,28 @@ def get_access_token(ga_key_filepath):
 
     return _credentials.get_access_token().access_token
 
+def get_access_token_from_str(ga_key_content):
+    # from https://ga-dev-tools.appspot.com/embed-api/server-side-authorization/
+    # Defines a method to get an access token from the credentials object.
+    # The access token is automatically refreshed if it has expired.
+
+    # The scope for the OAuth2 request.
+    SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
+
+    # Construct a credentials objects from the key data and OAuth2 scope.
+    _credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        ga_key_content, SCOPE)
+
+    return _credentials.get_access_token().access_token
+
 @cache_page(3600)
 def token(request):
     # return a cached access token to ajax clients
-    access_token = get_access_token(settings.GA_KEY_FILEPATH)
+    if (settings.GA_KEY_CONTENT != ''):
+        access_token = get_access_token_from_str(settings.GA_KEY_CONTENT)
+    else:
+        access_token = get_access_token(settings.GA_KEY_FILEPATH)
+
     return HttpResponse(access_token)
 
 def dashboard(request):
