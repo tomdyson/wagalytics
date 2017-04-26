@@ -12,6 +12,19 @@
           fs.parentNode.insertBefore(js,fs);js.onload=function(){g.load('analytics');};
         }(window,document,'script'));
     </script>
+    <style>
+      .chart {
+          height: 250px;
+      }
+
+      .icon-spinner {
+          margin-left: 50%;
+      }
+
+      .button-group {
+        float: right;
+      }
+    </style>
 {% endblock %}
 
 {% block titletag %}{% trans 'Analytics' %}{% endblock %}
@@ -21,19 +34,27 @@
     {% include "wagtailadmin/shared/header.html" with title=title_trans %}
 
     <div class="nice-padding">
-        <h2>Sessions</h2>
-        <div id="sessions-line-chart-container" style="height: 200px;">Loading...</div>
-        <h2>Popular content</h2>
-        <div id="popular-pages-table-container">Loading...</div>
-        <h2>Top referrers</h2>
-        <div id="top-referrers-table-container">Loading...</div>
+        <div class="button-group">
+          <button class="button" id="btn-last7">Last 7 Days</button>
+          <button class="button" id="btn-last30">Last 30 Days</button>
+        </div>
+        <h2>Sessions <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
+        <div id="sessions-line-chart-container" class="chart"><i class="icon icon-spinner"></i></div>
+        <div class="col6">
+          <h2>Popular content <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
+          <div id="popular-pages-table-container" class="chart"><i class="icon icon-spinner"></i></div>
+        </div>
+        <div class="col6">
+          <h2>Top referrers <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
+          <div id="top-referrers-table-container" class="chart"><i class="icon icon-spinner"></i></div>
+        </div>
     </div>
 
 {% endblock %}
 
 {% block extra_js %}
     {{ block.super }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
     <script src="{% static 'wagalytics/wagalytics.js' %}"></script>
     <script>

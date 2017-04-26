@@ -1,6 +1,7 @@
 
 /**
  * The 'public' api - the only function the page needs to know about.
+ * Initialises google analytics and creates the dashboard charts
  * @param {*} token_url 
  * @param {*} view_id 
  */
@@ -24,11 +25,229 @@ function setup(token_url, view_id) {
 
         // Create the dashboard controller
         const dashboard = new Dashboard(view_id);
-        dashboard.sessionsLineChart();
-        dashboard.popularPagesBar();
-        dashboard.topReferrersBar();
+        dashboard.refresh(ranges.LAST30);
     });
 }
+
+/**
+ * The allowable date views for the sessions chart
+ */
+const ranges = {
+    LAST7: 1,
+    LAST30: 2
+};
+
+/**
+ * Wagtails' colour palette
+ */
+const colors = {
+    BLUE: '#71b2d4',
+    GREEN: '#189370',
+    ORANGE: '#e9b04d',
+    RED: '#cd3238',
+    SALMON: '#f37e77',
+    SALMON_LIGHT: '#fcf2f2',
+    TEAL: '#43b1b0',
+    TEAL_DARKER: '#358c8b',
+    TEAL_DARK: '#246060'
+};
+
+/**
+ * Sets up the various charts and controls their UI functionality
+ */
+class Dashboard {
+    constructor(view_id) {
+        this.view_id = view_id;
+        this.last_7_btn = document.getElementById('btn-last7');
+        this.last_30_btn = document.getElementById('btn-last30');
+        this.last_7_btn.addEventListener('click', () => this.refresh(ranges.LAST7));
+        this.last_30_btn.addEventListener('click', () => this.refresh(ranges.LAST30));
+        this.range = ranges.MONTH;
+    }
+
+    setLoading(id) {
+        document.getElementById(id).innerHTML = '<i class="icon icon-spinner"></i>';
+    }
+
+    /**
+     * Setup the charts within the specified date range (last 7 or last 30 days)
+     * @param {int} range - use the `ranges` enum to select. (Can be 1 or 2)
+     */
+    refresh(range) {
+        this.range = range;
+        this.sessionsLineChart();
+        this.popularPagesBar();
+        this.topReferrersBar();
+
+        switch (this.range) {
+            case ranges.LAST7:
+                $("span.range-n-days").html("7");
+                break;
+            case ranges.LAST30:
+                $("span.range-n-days").html("30");
+                break;
+            default:
+                $("span.range-n-days").html("??");
+        }        
+    }
+
+    /**
+     * Query the google API for data within 
+     * the set range.
+     * @param {Object} options Options specifying metrics, dimensions and any
+     *  other keys accepted by gapi. 
+     */
+    getQuery(options) {
+        switch (this.range) {
+            case ranges.LAST7:
+                return query(Object.assign({
+                    ids: this.view_id,
+                    'start-date': '7daysAgo',
+                    'end-date': 'today'
+                }, options));
+
+            case ranges.LAST30:
+                return query(Object.assign({
+                    ids: this.view_id,
+                    'start-date': '30daysAgo',
+                    'end-date': 'today'
+                }, options));
+
+        }
+    }
+
+    /**
+     * Create a line chart showing number of sessions per day
+     */
+    sessionsLineChart() {
+        const id = 'sessions-line-chart-container';
+        this.setLoading(id);
+        this.getQuery(
+            {
+                dimensions: 'ga:date,ga:nthDay',
+                metrics: 'ga:sessions'
+            }).then(results => {
+                var data1 = results.rows.map(row => row[2]);
+                var labels = results.rows.map(row => row[1]);
+                labels = labels.map(function (label) {
+                    return moment(label, 'YYYYMMDD').format('ddd');
+                });
+
+                var data = {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '',
+                            backgroundColor: colors.SALMON_LIGHT,
+                            borderColor: colors.SALMON,
+                            pointBackgroundColor: colors.SALMON,
+                            pointBorderColor: '#fff',
+                            data: data1
+                        }
+                    ]
+                };
+                new Chart(makeCanvas(id), {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                });
+                //generateLegend('legend-1-container', data.datasets);
+            });
+    }
+
+    /**
+     * Create bar chart showing 10 most popular pages
+     */
+    popularPagesBar() {
+        const id = 'popular-pages-table-container';
+        this.setLoading(id);
+        const queryData = {
+            'metrics': 'ga:pageviews',
+            'dimensions': 'ga:hostname,ga:pagePath',
+            'sort': '-ga:pageviews',
+            'max-results': 10
+        };
+        this.getQuery(queryData).then(results => {
+
+            // The results contain duplicates for variations in hostname
+            // e.g. if someone visit http://mywebsite.com vs http://www.mywebsite.com
+            // Here we aggregate these results into single values per page, regardless
+            // of hostname
+            var i = 0;
+            const rows = results.rows;
+            const l = rows.length;
+            const bars = {};
+            for (i; i < l; ++i) {
+                const key = rows[i][1]
+                if (bars.hasOwnProperty(key)) {
+                    bars[key] += parseInt(rows[i][2], 10);
+                }
+                else {
+                    bars[key] = parseInt(rows[i][2], 10);
+                }
+            }
+
+            const barHeights = Object.values(bars);
+            const labels = Object.keys(bars);
+            const data = {
+                labels,
+                datasets: [{
+                    data: barHeights,
+                    backgroundColor: colors.BLUE
+                }]
+            };
+            new Chart(makeCanvas(id), {
+                type: 'bar',
+                data,
+                options: {
+                        legend: {
+                            display: false
+                        }
+                    }
+            });
+        });
+    }
+
+    /**
+     * Create bar chart showing 10 top referrers
+     */
+    topReferrersBar() {
+        const id = 'top-referrers-table-container';
+        this.setLoading(id);
+        const queryData = {
+            'metrics': 'ga:pageviews',
+            'dimensions': 'ga:fullReferrer',
+            'sort': '-ga:pageviews',
+            'max-results': 10
+        };
+
+        this.getQuery(queryData).then(results => {
+            const barHeights = results.rows.map(row => row[1]);
+            const labels = results.rows.map(row => row[0]);
+            const data = {
+                labels,
+                datasets: [{
+                    data: barHeights,
+                    backgroundColor: colors.BLUE
+                }]
+            };
+            new Chart(makeCanvas(id), {
+                type: 'bar',
+                data,
+                options: {
+                        legend: {
+                            display: false
+                        }
+                    }
+            });
+        });
+    }
+}
+
 
 /**
  * Extend the Embed APIs `gapi.analytics.report.Data` component to
@@ -73,7 +292,7 @@ function makeCanvas(id) {
  */
 function generateLegend(id, items) {
     var legend = document.getElementById(id);
-    legend.innerHTML = items.map(function(item) {
+    legend.innerHTML = items.map(function (item) {
         var color = item.color || item.fillColor;
         var label = item.label;
         return '<li><i style="background:' + color + '"></i>' +
@@ -91,122 +310,6 @@ function escapeHtml(str) {
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
 }
-
-/**
- * The allowable date views for the sessions chart
- */
-const ranges = {
-    WEEK: 1,
-    MONTH: 2
-};
-
-/**
- * Wagtails' colour palette
- */
-const colors = {
-    BLUE: '#71b2d4',
-    GREEN: '#189370',
-    ORANGE: '#e9b04d',
-    RED: '#cd3238',
-    SALMON: '#f37e77',
-    SALMON_LIGHT: '#fcf2f2',
-    TEAL: '#43b1b0',
-    TEAL_DARKER: '#358c8b',
-    TEAL_DARK: '#246060'
-};
-
-/**
- * Sets up the various charts and controls their UI functionality
- */
-class Dashboard {
-    constructor(view_id) {
-        this.view_id = view_id;
-    }
-
-    getQueryForRange(range) {
-        var now = moment();
-        switch (range) {
-            case ranges.WEEK:
-                return query({
-                    'ids': this.view_id,
-                    'dimensions': 'ga:date,ga:nthDay',
-                    'metrics': 'ga:sessions',
-                    'start-date': moment(now).startOf('week').format('YYYY-MM-DD'),
-                    'end-date': moment(now).format('YYYY-MM-DD')
-                });
-
-            case ranges.MONTH:
-                return query({
-                    'ids': this.view_id,
-                    'dimensions': 'ga:date,ga:nthDay',
-                    'metrics': 'ga:sessions',
-                    'start-date': moment(now).startOf('month').format('YYYY-MM-DD'),
-                    'end-date': moment(now).format('YYYY-MM-DD')
-                });
-
-        }
-    }
-
-    sessionsLineChart(range = ranges.WEEK) {
-        this.getQueryForRange(range).then(results => {
-            var data1 = results.rows.map(function (row) { return +row[2]; });
-            var labels = results.rows.map(function (row) { return +row[0]; });
-            labels = labels.map(function (label) {
-                return moment(label, 'YYYYMMDD').format('ddd');
-            });
-
-            var data = {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'This Week',
-                        fillColor: colors.SALMON_LIGHT,
-                        strokeColor: colors.SALMON,
-                        pointColor: colors.SALMON,
-                        pointStrokeColor: '#fff',
-                        data: data1
-                    }
-                ]
-            };
-            new Chart(makeCanvas('sessions-line-chart-container')).Line(data);
-            //generateLegend('legend-1-container', data.datasets);
-        });
-    }
-
-    popularPagesBar() {
-        const queryData = {
-            'ids': this.view_id,
-            'start-date': '30daysAgo',
-            'end-date': 'today',
-            'metrics': 'ga:pageviews',
-            'dimensions': 'ga:hostname,ga:pagePath',
-            'sort': '-ga:pageviews',
-            'max-results': 25
-        };
-        query(queryData).then(results => {
-            // TODO!
-            console.log('Popular Pages', results);
-        });
-    }
-
-    topReferrersBar() {
-        const queryData = {
-            'ids': this.view_id,
-            'start-date': '30daysAgo',
-            'end-date': 'today',
-            'metrics': 'ga:pageviews',
-            'dimensions': 'ga:fullReferrer',
-            'sort': '-ga:pageviews',
-            'max-results': 25
-        };
-
-        query(queryData).then(results => {
-            // TODO!
-            console.log('Top Referrers', results);
-        });
-    }
-}
-
 
 // Set some global Chart.js defaults.
 Chart.defaults.global.animationSteps = 60;
