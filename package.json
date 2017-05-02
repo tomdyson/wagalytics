@@ -5,7 +5,7 @@
   "author": "Tom Dyson",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config ./client/webpack.config.js"
   },
   "babel": {
     "presets": [
