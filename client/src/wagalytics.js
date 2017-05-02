@@ -68,6 +68,20 @@ class Dashboard {
         this.last_7_btn.addEventListener('click', () => this.refresh(ranges.LAST7));
         this.last_30_btn.addEventListener('click', () => this.refresh(ranges.LAST30));
         this.range = ranges.MONTH;
+
+        this.tooltips = {
+            enabled: true,
+            mode: 'label',
+            callbacks: {
+                title: function (tooltipItems, data) {
+                    var idx = tooltipItems[0].index;
+                    return 'Title:' + data.labels[idx];//do something with title
+                },
+                label: function (tooltipItems, data) {
+                    return tooltipItems.xLabel;
+                }
+            }
+        }
     }
 
     setLoading(id) {
@@ -81,8 +95,8 @@ class Dashboard {
     refresh(range) {
         this.range = range;
         this.sessionsLineChart();
-        this.popularPagesBar();
-        this.topReferrersBar();
+        this.popularPagesTable();
+        this.topReferrersTable();
 
         switch (this.range) {
             case ranges.LAST7:
@@ -93,7 +107,7 @@ class Dashboard {
                 break;
             default:
                 $("span.range-n-days").html("??");
-        }        
+        }
     }
 
     /**
@@ -165,16 +179,16 @@ class Dashboard {
     }
 
     /**
-     * Create bar chart showing 10 most popular pages
+     * Create table showing 25 most popular pages
      */
-    popularPagesBar() {
+    popularPagesTable() {
         const id = 'popular-pages-table-container';
         this.setLoading(id);
         const queryData = {
             'metrics': 'ga:pageviews',
             'dimensions': 'ga:hostname,ga:pagePath',
             'sort': '-ga:pageviews',
-            'max-results': 10
+            'max-results': 25
         };
         this.getQuery(queryData).then(results => {
 
@@ -189,68 +203,127 @@ class Dashboard {
             for (i; i < l; ++i) {
                 const key = rows[i][1]
                 if (bars.hasOwnProperty(key)) {
-                    bars[key] += parseInt(rows[i][2], 10);
+                    bars[key][1] += parseInt(rows[i][2], 10);
                 }
                 else {
-                    bars[key] = parseInt(rows[i][2], 10);
+                    bars[key] = [key, parseInt(rows[i][2], 10)];
                 }
             }
 
-            const barHeights = Object.values(bars);
-            const labels = Object.keys(bars);
-            const data = {
-                labels,
-                datasets: [{
-                    data: barHeights,
-                    backgroundColor: colors.BLUE
-                }]
-            };
-            new Chart(makeCanvas(id), {
-                type: 'bar',
-                data,
-                options: {
-                        legend: {
-                            display: false
-                        }
-                    }
-            });
+            const table = createTable(['Page URL', 'Views'], Object.values(bars));
+            const pager = paginateTable(table);
+            const container = document.getElementById(id);
+            container.innerHTML = '';
+            container.appendChild(table);
+            $(container).append(pager);
         });
     }
 
     /**
-     * Create bar chart showing 10 top referrers
+     * Create table showing 25 top referrers
      */
-    topReferrersBar() {
+    topReferrersTable() {
         const id = 'top-referrers-table-container';
         this.setLoading(id);
         const queryData = {
             'metrics': 'ga:pageviews',
             'dimensions': 'ga:fullReferrer',
             'sort': '-ga:pageviews',
-            'max-results': 10
+            'max-results': 25
         };
 
-        this.getQuery(queryData).then(results => {
-            const barHeights = results.rows.map(row => row[1]);
-            const labels = results.rows.map(row => row[0]);
-            const data = {
-                labels,
-                datasets: [{
-                    data: barHeights,
-                    backgroundColor: colors.BLUE
-                }]
-            };
-            new Chart(makeCanvas(id), {
-                type: 'bar',
-                data,
-                options: {
-                        legend: {
-                            display: false
-                        }
-                    }
-            });
+        this.getQuery(queryData).then(results => {           
+            const table = createTable(['Source', 'Views'], results.rows);
+            const pager = paginateTable(table);
+            const container = document.getElementById(id);
+            container.innerHTML = '';
+            container.appendChild(table);
+            $(container).append(pager);
         });
     }
+}
+
+/**
+ * Create a table
+ * @param {*} headings 
+ * @param {*} rows 
+ */
+function createTable(headings, rows){
+    const table = document.createElement('table');
+    table.className = 'listing';
+    const head = table.createTHead();
+    const headerRow = head.insertRow(0);
+    let i = 0;
+    for (i; i < headings.length; ++i) {
+        const heading = headerRow.insertCell(i);
+        heading.innerHTML = headings[i];
+        heading.className = 'title';
+    }
+    const body = table.createTBody();
+    for (i = 0; i < rows.length; ++i) {
+        const rowData = rows[i];
+        const row = body.insertRow(i);
+        for (let j = 0; j < rowData.length; ++j) {
+            row.insertCell(j).innerHTML = rowData[j];
+        }
+    }
+    return table;
+}
+
+/**
+ * Client side pagination of a table.
+ * Table rows are hidden/shown according to the page number
+ * @param {*} table 
+ */
+function paginateTable(table) {
+    let currentPage = 0;
+    const numPerPage = 5;
+    const $table = $(table);
+
+    // This is the function which controls display of content
+    $table.bind('repaginate', function() {
+        $table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
+    });
+    $table.trigger('repaginate');
+    const numRows = $table.find('tbody tr').length;
+    const numPages = Math.ceil(numRows / numPerPage);
+
+    // Create the page selector element and add callbacks to handle setting the page
+    const $pager = $(`
+        <div class="pagination">
+            <p>Page <span id='page-num'>1</span> of ${numPages}</p>
+            <ul>
+                <li class="prev">
+                    <a class="icon icon-arrow-left" id="prev" href="#">Previous</a>
+                </li>
+                <li class="next">
+                    <a class="icon icon-arrow-right-after" id="next" href="#">Next</a>
+                </li>
+            </ul>
+        </div>`);
+    
+    // Previous page click handler
+    $pager.find('#prev').bind('click', event => {
+        event.preventDefault();
+        currentPage -= 1;
+        if (currentPage < 0) {
+            currentPage = 0;
+        }
+        $('#page-num').text(`${currentPage + 1}`);
+        $table.trigger('repaginate');
+    });
+
+    // Next page click handler
+    $pager.find('#next').bind('click', event => {
+        event.preventDefault();
+        currentPage += 1;
+        if (currentPage >= numPages) {
+            currentPage = numPages - 1;
+        }
+        $('#page-num').text(`${currentPage + 1}`);
+        $table.trigger('repaginate');
+    });
+    return $pager;
 }
 
 
