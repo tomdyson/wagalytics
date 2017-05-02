@@ -1,6 +1,11 @@
+import moment from 'moment';
+
+$(document).ready(() => {
+    const el = document.getElementById('wagalytics-data');
+    setup(el.dataset.token, el.dataset.viewId);
+});
 
 /**
- * The 'public' api - the only function the page needs to know about.
  * Initialises google analytics and creates the dashboard charts
  * @param {*} token_url 
  * @param {*} view_id 

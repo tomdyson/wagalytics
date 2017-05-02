@@ -3,3 +3,7 @@ build/
 *.pyc
 .DS_Store
 *.egg-info
+npm-debug.log
+node_modules
+*.bundle.js
+bundle.js.*

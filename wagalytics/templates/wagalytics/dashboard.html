@@ -49,15 +49,13 @@
           <div id="top-referrers-table-container" class="chart"><i class="icon icon-spinner"></i></div>
         </div>
     </div>
-
+    <div hidden id="wagalytics-data" data-token="{% url 'wagalytics_token' %}" data-view-id="{{ ga_view_id }}">
+    </div>
 {% endblock %}
 
 {% block extra_js %}
     {{ block.super }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
-    <script src="{% static 'wagalytics/wagalytics.js' %}"></script>
-    <script>
-      setup("{% url 'wagalytics_token' %}", "{{ ga_view_id }}");
-    </script>
+    <script src="{% static 'wagalytics/vendors.bundle.js' %}"></script>
+    <script src="{% static 'wagalytics/wagalytics.bundle.js' %}"></script>
 {% endblock %}
