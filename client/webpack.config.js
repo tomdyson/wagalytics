@@ -10,7 +10,7 @@ module.exports = {
     ]
   },
   output: {
-      path: path.resolve('../wagalytics/static/wagalytics/'),
+      path: path.resolve('./wagalytics/static/wagalytics/'),
       filename: "[name].bundle.js"
   },
 
