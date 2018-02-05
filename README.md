@@ -37,6 +37,6 @@ This module doesn't help with recording user activity. See [the Wagtail docs](ht
 
 ### Contributors
 
-Thijs Kramer
-Stefan Schärmeli
-Alex Gleason
+ - Thijs Kramer
+ - Stefan Schärmeli
+ - Alex Gleason
