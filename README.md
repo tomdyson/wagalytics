@@ -18,6 +18,9 @@ This module provides a simple dashboard of Google Analytics data, integrated int
 1. Add 'wagtailfontawesome' to INSTALLED_APPS if it's not there already
 1. Update your settings:
  - `GA_KEY_FILEPATH = '/path/to/secure/directory/your-key.json'`
+ 
+ or when using environment variables (e.g. Heroku):
+ - `GA_KEY_CONTENT = 'content_of_your_key.json'`
  - `GA_VIEW_ID = 'ga:xxxxxxxx'`
 
 If you get CryptoUnavailableError errors, you probably need to `pip install PyOpenSSL` and/or `pip install pycrypto`. See [StackOverflow](http://stackoverflow.com/questions/27305867/google-api-access-using-service-account-oauth2client-client-cryptounavailableerr).
@@ -44,4 +47,6 @@ This module doesn't help with recording user activity. See [the Wagtail docs](ht
 
 ### Contributors
 
-Thijs Kramer
+ - Thijs Kramer
+ - Stefan Schärmeli
+ - Alex Gleason
