@@ -7,8 +7,8 @@ $(document).ready(() => {
 
 /**
  * Initialises google analytics and creates the dashboard charts
- * @param {*} token_url 
- * @param {*} view_id 
+ * @param {*} token_url
+ * @param {*} view_id
  */
 function setup(token_url, view_id) {
     if (!window.google || !window.google.load) {
@@ -111,10 +111,10 @@ class Dashboard {
     }
 
     /**
-     * Query the google API for data within 
+     * Query the google API for data within
      * the set range.
      * @param {Object} options Options specifying metrics, dimensions and any
-     *  other keys accepted by gapi. 
+     *  other keys accepted by gapi.
      */
     getQuery(options) {
         switch (this.range) {
@@ -147,16 +147,16 @@ class Dashboard {
                 metrics: 'ga:sessions'
             }).then(results => {
                 var data1 = results.rows.map(row => row[2]);
-                var labels = results.rows.map(row => row[1]);
+                var labels = results.rows.map(row => row[0]);
                 labels = labels.map(function (label) {
-                    return moment(label, 'YYYYMMDD').format('ddd');
+                    return moment(label, 'YYYYMMDD').format('ll');
                 });
 
                 var data = {
                     labels: labels,
                     datasets: [
                         {
-                            label: '',
+                            label: 'Sessions',
                             backgroundColor: colors.SALMON_LIGHT,
                             borderColor: colors.SALMON,
                             pointBackgroundColor: colors.SALMON,
@@ -171,6 +171,15 @@ class Dashboard {
                     options: {
                         legend: {
                             display: false
+                        },
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 4,
+                                    maxRotation: 0
+                                }
+                            }]
                         }
                     }
                 });
@@ -232,7 +241,7 @@ class Dashboard {
             'max-results': 25
         };
 
-        this.getQuery(queryData).then(results => {           
+        this.getQuery(queryData).then(results => {
             const table = createTable(['Source', 'Views'], results.rows);
             const pager = paginateTable(table);
             const container = document.getElementById(id);
@@ -245,8 +254,8 @@ class Dashboard {
 
 /**
  * Create a table
- * @param {*} headings 
- * @param {*} rows 
+ * @param {*} headings
+ * @param {*} rows
  */
 function createTable(headings, rows){
     const table = document.createElement('table');
@@ -258,6 +267,9 @@ function createTable(headings, rows){
         const heading = headerRow.insertCell(i);
         heading.innerHTML = headings[i];
         heading.className = 'title';
+        if (i == 0) {
+          heading.style.cssText = 'width: 100%';
+        }
     }
     const body = table.createTBody();
     for (i = 0; i < rows.length; ++i) {
@@ -273,7 +285,7 @@ function createTable(headings, rows){
 /**
  * Client side pagination of a table.
  * Table rows are hidden/shown according to the page number
- * @param {*} table 
+ * @param {*} table
  */
 function paginateTable(table) {
     let currentPage = 0;
@@ -283,6 +295,17 @@ function paginateTable(table) {
     // This is the function which controls display of content
     $table.bind('repaginate', function() {
         $table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
+        let $pager = $table.next();
+        if (currentPage <= 0) {
+            $pager.find('.prev').addClass('disabled');
+        } else {
+            $pager.find('.prev').removeClass('disabled');
+        }
+        if (currentPage >= numPages - 1) {
+            $pager.find('.next').addClass('disabled');
+        } else {
+            $pager.find('.next').removeClass('disabled');
+        }
     });
     $table.trigger('repaginate');
     const numRows = $table.find('tbody tr').length;
@@ -291,36 +314,36 @@ function paginateTable(table) {
     // Create the page selector element and add callbacks to handle setting the page
     const $pager = $(`
         <div class="pagination">
-            <p>Page <span id='page-num'>1</span> of ${numPages}</p>
+            <p>Page <span class="page-num">1</span> of ${numPages}</p>
             <ul>
-                <li class="prev">
-                    <a class="icon icon-arrow-left" id="prev" href="#">Previous</a>
+                <li class="prev disabled">
+                    <a class="icon icon-arrow-left" href="#">Previous</a>
                 </li>
                 <li class="next">
-                    <a class="icon icon-arrow-right-after" id="next" href="#">Next</a>
+                    <a class="icon icon-arrow-right-after" href="#">Next</a>
                 </li>
             </ul>
         </div>`);
-    
+
     // Previous page click handler
-    $pager.find('#prev').bind('click', event => {
+    $pager.find('.prev a').bind('click', event => {
         event.preventDefault();
         currentPage -= 1;
         if (currentPage < 0) {
             currentPage = 0;
         }
-        $('#page-num').text(`${currentPage + 1}`);
+        $pager.find('.page-num').text(`${currentPage + 1}`);
         $table.trigger('repaginate');
     });
 
     // Next page click handler
-    $pager.find('#next').bind('click', event => {
+    $pager.find('.next a').bind('click', event => {
         event.preventDefault();
         currentPage += 1;
         if (currentPage >= numPages) {
             currentPage = numPages - 1;
         }
-        $('#page-num').text(`${currentPage + 1}`);
+        $pager.find('.page-num').text(`${currentPage + 1}`);
         $table.trigger('repaginate');
     });
     return $pager;

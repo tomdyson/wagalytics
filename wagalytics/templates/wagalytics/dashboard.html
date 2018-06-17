@@ -14,7 +14,8 @@
     </script>
     <style>
       .chart {
-          height: 250px;
+          height: 150px;
+          margin-bottom: 50px;
       }
 
       .icon-spinner {
@@ -24,27 +25,55 @@
       .button-group {
         float: right;
       }
+
+      .pagination {
+        margin-bottom: 50px;
+      }
+
+      .pagination ul {
+        margin-top: -1.265em;
+      }
+
+      .disabled a {
+        cursor: default;
+        pointer-events: none;
+        color: #666;
+        opacity: 0.5;
+      }
     </style>
 {% endblock %}
 
 {% block titletag %}{% trans 'Analytics' %}{% endblock %}
 
 {% block content %}
-    {% trans "30 day analytics" as title_trans %}
-    {% include "wagtailadmin/shared/header.html" with title=title_trans %}
+    <header>
+        <div class="row nice-padding">
+            <div class="left">
+                <div class="col header-title">
+                    <h1 class="icon icon-fa-bar-chart">
+                        {% trans "Analytics" %}
+                    </h1>
+                </div>
+            </div>
+            <div class="right">
+                <div class="button-group">
+                  <button class="button" id="btn-last7">Last 7 Days</button>
+                  <button class="button" id="btn-last30">Last 30 Days</button>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <div class="nice-padding">
-        <div class="button-group">
-          <button class="button" id="btn-last7">Last 7 Days</button>
-          <button class="button" id="btn-last30">Last 30 Days</button>
+        <div class="col12 clearfix">
+          <h2>Sessions <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
+          <div id="sessions-line-chart-container" class="chart"><i class="icon icon-spinner"></i></div>
         </div>
-        <h2>Sessions <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
-        <div id="sessions-line-chart-container" class="chart"><i class="icon icon-spinner"></i></div>
-        <div class="col6">
+        <div class="col6 clearfix">
           <h2>Popular content <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
           <div id="popular-pages-table-container"><i class="icon icon-spinner"></i></div>
         </div>
-        <div class="col6">
+        <div class="col6 clearfix">
           <h2>Top referrers <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
           <div id="top-referrers-table-container" ><i class="icon icon-spinner"></i></div>
         </div>
