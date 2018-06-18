@@ -40,6 +40,19 @@
         color: #666;
         opacity: 0.5;
       }
+
+      .wagalytics table.listing td.title:first-child {
+        width: 100%;
+      }
+
+      footer .actions {
+        width: auto;
+      }
+
+      footer .meta {
+        float: none;
+        text-align: left;
+      }
     </style>
 {% endblock %}
 
@@ -96,6 +109,23 @@
             <div id="top-referrers-table-container" ><i class="icon icon-spinner"></i></div>
         </div>
     </div>
+
+    <footer>
+        <ul>
+            <li class="actions">
+                <form id="export" action="{% url 'wagalytics_export' %}" method="post">
+                    {% csrf_token %}
+                    <input id="export-data" type="hidden" name="data">
+                    <button id="export-button" class="button icon icon-download button-longrunning" data-clicked-text="Exporting…" type="submit" disabled>
+                        <span class="icon icon-spinner"></span><em>Export Data</em>
+                    </button>
+                </form>
+            </li>
+            <li class="meta">
+                <p>{% trans "The current view will be exported to a spreadsheet file (*.ods)" %}</p>
+            </li>
+        </ul>
+    </footer>
 
     <div hidden id="wagalytics-data" data-token="{% url 'wagalytics_token' %}" data-view-id="{{ ga_view_id }}">
     </div>

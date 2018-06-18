@@ -57,8 +57,14 @@ class Dashboard {
         this.view_id = view_id;
         this.start_date_input = document.getElementById("id_date_from");
         this.end_date_input = document.getElementById("id_date_to");
+        this.export_btn = document.getElementById("export-button");
         this.start_date_input.addEventListener('change', () => this.refresh());
         this.end_date_input.addEventListener('change', () => this.refresh());
+        $(document.getElementById("export")).submit(() => {
+            $(document.getElementById('export-data')).val(JSON.stringify(this.data));
+        });
+
+        this.data = {};
 
         this.tooltips = {
             enabled: true,
@@ -96,6 +102,7 @@ class Dashboard {
      *  other keys accepted by gapi.
      */
     getQuery(options) {
+      $(this.export_btn).prop('disabled', true);
       return query(Object.assign({
           ids: this.view_id,
           'start-date': $(this.start_date_input).val(),
@@ -114,6 +121,10 @@ class Dashboard {
                 dimensions: 'ga:date,ga:nthDay',
                 metrics: 'ga:sessions'
             }).then(results => {
+                this.data['sessions'] = results.rows;
+                $(this.export_btn).prop('disabled', false);
+                $(this.export_btn).removeClass('button-longrunning-active');
+
                 var data1 = results.rows.map(row => row[2]);
                 var labels = results.rows.map(row => row[0]);
                 labels = labels.map(function (label) {
@@ -187,6 +198,10 @@ class Dashboard {
                 }
             }
 
+            this.data['pages'] = Object.values(bars);
+            $(this.export_btn).prop('disabled', false);
+            $(this.export_btn).removeClass('button-longrunning-active');
+
             const table = createTable(['Page URL', 'Views'], Object.values(bars));
             const pager = paginateTable(table);
             const container = document.getElementById(id);
@@ -210,6 +225,10 @@ class Dashboard {
         };
 
         this.getQuery(queryData).then(results => {
+            this.data['referrers'] = results.rows;
+            $(this.export_btn).prop('disabled', false);
+            $(this.export_btn).removeClass('button-longrunning-active');
+
             const table = createTable(['Source', 'Views'], results.rows);
             const pager = paginateTable(table);
             const container = document.getElementById(id);
@@ -235,9 +254,6 @@ function createTable(headings, rows){
         const heading = headerRow.insertCell(i);
         heading.innerHTML = headings[i];
         heading.className = 'title';
-        if (i == 0) {
-          heading.style.cssText = 'width: 100%';
-        }
     }
     const body = table.createTBody();
     for (i = 0; i < rows.length; ++i) {
