@@ -18,7 +18,7 @@ This module provides a simple dashboard of Google Analytics data, integrated int
 1. Add 'wagtailfontawesome' to INSTALLED_APPS if it's not there already
 1. Update your settings:
  - `GA_KEY_FILEPATH = '/path/to/secure/directory/your-key.json'`
- 
+
  or when using environment variables (e.g. Heroku):
  - `GA_KEY_CONTENT = 'content_of_your_key.json'`
  - `GA_VIEW_ID = 'ga:xxxxxxxx'`
@@ -29,10 +29,10 @@ If you get CryptoUnavailableError errors, you probably need to `pip install PyOp
 
 Developers will need to carry out the following steps after cloning wagalytics:
 
-- Ensure NodeJS & NPM are installed 
+- Ensure NodeJS & NPM are installed
 - Run `npm install` then `npm run build` in the top level wagalytics directory
 
-You will need to run `npm run build` anytime the javascript source is updated. 
+You will need to run `npm run build` anytime the javascript source is updated.
 
 ### TODO
 
@@ -50,3 +50,4 @@ This module doesn't help with recording user activity. See [the Wagtail docs](ht
  - Thijs Kramer
  - Stefan Schärmeli
  - Alex Gleason
+ - James Ramm
