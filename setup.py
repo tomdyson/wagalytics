@@ -1,7 +1,8 @@
-from setuptools import setup, find_packages
-from wagalytics import __version__
-from codecs import open
 from os import path
+
+from setuptools import setup, find_packages
+from wagtail.utils.setup import sdist
+from wagalytics import __version__
 
 setup(
     name='wagalytics',
@@ -32,4 +33,7 @@ setup(
         "oauth2client<3,>=2.0.0",
         "wagtailfontawesome>= 1.0.2"
     ],
+    cmdclass={
+        'sdist': sdist
+    }
 )

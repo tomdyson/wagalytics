@@ -25,10 +25,19 @@ This module provides a simple dashboard of Google Analytics data, integrated int
 
 If you get CryptoUnavailableError errors, you probably need to `pip install PyOpenSSL` and/or `pip install pycrypto`. See [StackOverflow](http://stackoverflow.com/questions/27305867/google-api-access-using-service-account-oauth2client-client-cryptounavailableerr).
 
+## Developers
+
+Developers will need to carry out the following steps after cloning wagalytics:
+
+- Ensure NodeJS & NPM are installed 
+- Run `npm install` then `npm run build` in the top level wagalytics directory
+
+You will need to run `npm run build` anytime the javascript source is updated. 
+
 ### TODO
 
  - [ ] allow configuration of results
- - [ ] better styling, e.g. using [chart.js](https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/)
+ - [x] better styling, e.g. using [chart.js](https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/)
  - [ ] Throw an error if the relevant settings aren't available
  - [x] add [per-page results](https://github.com/tomdyson/wagalytics/issues/12)
 

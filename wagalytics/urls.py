@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-from wagalytics.views import dashboard, token
+from .views import dashboard, token
 
 try:
     from django.urls import re_path
