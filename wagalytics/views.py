@@ -1,9 +1,11 @@
 import json
+import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 from django.shortcuts import redirect, render
 from django.conf import settings
 from django.views.decorators.cache import cache_page
 from django.http import HttpResponse
+from django.utils import timezone
 
 def get_access_token(ga_key_filepath):
     # from https://ga-dev-tools.appspot.com/embed-api/server-side-authorization/
@@ -45,6 +47,9 @@ def token(request):
     return HttpResponse(access_token)
 
 def dashboard(request):
+    initial_start_date = (timezone.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+
     return render(request, 'wagalytics/dashboard.html', {
         'ga_view_id': settings.GA_VIEW_ID,
+        'initial_start_date': initial_start_date,
     })

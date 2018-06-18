@@ -30,17 +30,9 @@ function setup(token_url, view_id) {
 
         // Create the dashboard controller
         const dashboard = new Dashboard(view_id);
-        dashboard.refresh(ranges.LAST30);
+        dashboard.refresh();
     });
 }
-
-/**
- * The allowable date views for the sessions chart
- */
-const ranges = {
-    LAST7: 1,
-    LAST30: 2
-};
 
 /**
  * Wagtails' colour palette
@@ -63,11 +55,10 @@ const colors = {
 class Dashboard {
     constructor(view_id) {
         this.view_id = view_id;
-        this.last_7_btn = document.getElementById('btn-last7');
-        this.last_30_btn = document.getElementById('btn-last30');
-        this.last_7_btn.addEventListener('click', () => this.refresh(ranges.LAST7));
-        this.last_30_btn.addEventListener('click', () => this.refresh(ranges.LAST30));
-        this.range = ranges.MONTH;
+        this.start_date_input = document.getElementById("id_date_from");
+        this.end_date_input = document.getElementById("id_date_to");
+        this.start_date_input.addEventListener('change', () => this.refresh());
+        this.end_date_input.addEventListener('change', () => this.refresh());
 
         this.tooltips = {
             enabled: true,
@@ -92,22 +83,10 @@ class Dashboard {
      * Setup the charts within the specified date range (last 7 or last 30 days)
      * @param {int} range - use the `ranges` enum to select. (Can be 1 or 2)
      */
-    refresh(range) {
-        this.range = range;
+    refresh() {
         this.sessionsLineChart();
         this.popularPagesTable();
         this.topReferrersTable();
-
-        switch (this.range) {
-            case ranges.LAST7:
-                $("span.range-n-days").html("7");
-                break;
-            case ranges.LAST30:
-                $("span.range-n-days").html("30");
-                break;
-            default:
-                $("span.range-n-days").html("??");
-        }
     }
 
     /**
@@ -117,22 +96,11 @@ class Dashboard {
      *  other keys accepted by gapi.
      */
     getQuery(options) {
-        switch (this.range) {
-            case ranges.LAST7:
-                return query(Object.assign({
-                    ids: this.view_id,
-                    'start-date': '7daysAgo',
-                    'end-date': 'today'
-                }, options));
-
-            case ranges.LAST30:
-                return query(Object.assign({
-                    ids: this.view_id,
-                    'start-date': '30daysAgo',
-                    'end-date': 'today'
-                }, options));
-
-        }
+      return query(Object.assign({
+          ids: this.view_id,
+          'start-date': $(this.start_date_input).val(),
+          'end-date': $(this.end_date_input).val()
+      }, options));
     }
 
     /**
