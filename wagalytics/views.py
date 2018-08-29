@@ -1,9 +1,14 @@
 import json
+import datetime
+from io import BytesIO
 from oauth2client.service_account import ServiceAccountCredentials
 from django.shortcuts import redirect, render
 from django.conf import settings
 from django.views.decorators.cache import cache_page
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.utils import timezone
+from collections import OrderedDict
+from pyexcel_ods import save_data
 
 def get_access_token(ga_key_filepath):
     # from https://ga-dev-tools.appspot.com/embed-api/server-side-authorization/
@@ -45,6 +50,52 @@ def token(request):
     return HttpResponse(access_token)
 
 def dashboard(request):
+    initial_start_date = (timezone.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+
     return render(request, 'wagalytics/dashboard.html', {
         'ga_view_id': settings.GA_VIEW_ID,
+        'initial_start_date': initial_start_date,
     })
+
+def export(request):
+    # Get JSON string posted to `data`
+    raw_data = request.POST.get('data')
+
+    # Reject a request without data
+    if not raw_data:
+        return HttpResponseBadRequest()
+
+    # Convert JSON to a Python dict
+    data = json.loads(raw_data)
+
+    # Clean up session data
+    for n in data["sessions"]:
+        # Convert dates into datetime.date objects
+        n[0] = datetime.datetime.strptime(n[0], '%Y%m%d').strftime("%Y-%m-%d")
+        # Convert session counts into integers
+        n[2] = int(n[2])
+        # Second key is just the index, which isn't needed
+        del n[1]
+
+    # Clean up referrers data
+    for n in data["referrers"]:
+        # Convert counts into integers
+        n[1] = int(n[1])
+
+    # Format spreadsheet file
+    ods = OrderedDict()
+    ods["Sessions"] = [["Date", "Sessions"]] + data["sessions"]
+    ods["Popular Content"] = [["Page URL", "Views"]] + data["pages"]
+    ods["Top Referrers"] = [["Source", "Views"]] + data["referrers"]
+
+    # Save the spreadsheet into memory
+    io = BytesIO()
+    save_data(io, ods)
+
+    # Set response metadata
+    response = HttpResponse(content_type='application/vnd.oasis.opendocument.spreadsheet')
+    response['Content-Disposition'] = 'attachment; filename="wagalytics.ods"'
+
+    # Write spreadsheet into response
+    response.write(io.getvalue())
+    return response

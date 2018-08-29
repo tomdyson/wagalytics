@@ -1,5 +1,5 @@
 {% extends "wagtailadmin/base.html" %}
-{% load wagtailadmin_tags i18n staticfiles gravatar %}
+{% load wagtailadmin_tags i18n staticfiles %}
 
 {% block extra_css %}
     {% include "wagtailadmin/pages/_editor_css.html" %}
@@ -13,32 +13,45 @@
         }(window,document,'script'));
     </script>
     <style>
-      .chart {
+      .wagalytics .chart {
           height: 150px;
           margin-bottom: 50px;
       }
 
-      .icon-spinner {
+      .wagalytics .icon-spinner {
           margin-left: 50%;
       }
 
-      .button-group {
+      .wagalytics .button-group {
         float: right;
       }
 
-      .pagination {
+      .wagalytics .pagination {
         margin-bottom: 50px;
       }
 
-      .pagination ul {
+      .wagalytics .pagination ul {
         margin-top: -1.265em;
       }
 
-      .disabled a {
+      .wagalytics .disabled a {
         cursor: default;
         pointer-events: none;
         color: #666;
         opacity: 0.5;
+      }
+
+      .wagalytics table.listing td.title:first-child {
+        width: 100%;
+      }
+
+      footer .actions {
+        width: auto;
+      }
+
+      footer .meta {
+        float: none;
+        text-align: left;
       }
     </style>
 {% endblock %}
@@ -46,7 +59,7 @@
 {% block titletag %}{% trans 'Analytics' %}{% endblock %}
 
 {% block content %}
-    <header>
+    <header class="col12">
         <div class="row nice-padding">
             <div class="left">
                 <div class="col header-title">
@@ -55,29 +68,65 @@
                     </h1>
                 </div>
             </div>
-            <div class="right">
-                <div class="button-group">
-                  <button class="button" id="btn-last7">Last 7 Days</button>
-                  <button class="button" id="btn-last30">Last 30 Days</button>
-                </div>
-            </div>
+            <form class="left">
+                <ul class="fields">
+                    <li class="date_field col6">
+                        <div class="field date_field admin_date_input field-small">
+                            <label for="id_date_from">Start date:</label>
+                            <div class="field-content">
+                                <div class="input">
+                                    <input id="id_date_from" type="date" value="{{ initial_start_date }}">
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="date_field col6">
+                        <div class="field date_field admin_date_input field-small">
+                            <label for="id_date_from">End date:</label>
+                            <div class="field-content">
+                                <div class="input">
+                                    <input id="id_date_to" type="date" value="{% now "Y-m-d" %}">
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </form>
         </div>
     </header>
 
-    <div class="nice-padding">
+    <div class="wagalytics nice-padding">
         <div class="col12 clearfix">
-          <h2>Sessions <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
-          <div id="sessions-line-chart-container" class="chart"><i class="icon icon-spinner"></i></div>
+            <h2>Sessions</h2>
+            <div id="sessions-line-chart-container" class="chart"><i class="icon icon-spinner"></i></div>
         </div>
         <div class="col6 clearfix">
-          <h2>Popular content <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
-          <div id="popular-pages-table-container"><i class="icon icon-spinner"></i></div>
+            <h2>Popular content</h2>
+            <div id="popular-pages-table-container"><i class="icon icon-spinner"></i></div>
         </div>
         <div class="col6 clearfix">
-          <h2>Top referrers <small><i>(Last <span class="range-n-days"></span> days)</i></small></h2>
-          <div id="top-referrers-table-container" ><i class="icon icon-spinner"></i></div>
+            <h2>Top referrers</h2>
+            <div id="top-referrers-table-container" ><i class="icon icon-spinner"></i></div>
         </div>
     </div>
+
+    <footer>
+        <ul>
+            <li class="actions">
+                <form id="export" action="{% url 'wagalytics_export' %}" method="post">
+                    {% csrf_token %}
+                    <input id="export-data" type="hidden" name="data">
+                    <button id="export-button" class="button icon icon-download button-longrunning" data-clicked-text="Exporting…" type="submit" disabled>
+                        <span class="icon icon-spinner"></span><em>Export Data</em>
+                    </button>
+                </form>
+            </li>
+            <li class="meta">
+                <p>{% trans "The current view will be exported to a spreadsheet file (*.ods)" %}</p>
+            </li>
+        </ul>
+    </footer>
+
     <div hidden id="wagalytics-data" data-token="{% url 'wagalytics_token' %}" data-view-id="{{ ga_view_id }}">
     </div>
 {% endblock %}
