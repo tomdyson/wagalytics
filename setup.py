@@ -29,8 +29,7 @@ setup(
     install_requires=[
         "wagtail>=0.8.7",
         "Django>=1.7.1",
-        "google-api-python-client==1.5.5",
-        "oauth2client<3,>=2.0.0",
+        "oauth2client",
         "wagtailfontawesome>=1.0.2",
         "pyexcel-ods==0.5.3"
     ],
