@@ -1,8 +1,11 @@
 import moment from 'moment';
 
+let siteSwitcher = require('./siteSwitcher');
+
 $(document).ready(() => {
     const el = document.getElementById('wagalytics-data');
     setup(el.dataset.token, el.dataset.viewId);
+    siteSwitcher.init();
 });
 
 /**

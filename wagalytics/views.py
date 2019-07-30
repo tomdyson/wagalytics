@@ -2,13 +2,18 @@ import json
 import datetime
 from io import BytesIO
 from oauth2client.service_account import ServiceAccountCredentials
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.conf import settings
 from django.views.decorators.cache import cache_page
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.utils import timezone
 from collections import OrderedDict
 from pyexcel_ods import save_data
+
+try:
+    from wagtail.core.models import Site
+except ImportError:  # fallback for Wagtail <2.0
+    from wagtail.wagtailcore.models import Site
 
 def get_access_token(ga_key_filepath):
     # from https://ga-dev-tools.appspot.com/embed-api/server-side-authorization/
@@ -51,10 +56,29 @@ def token(request):
 
 def dashboard(request):
     initial_start_date = (timezone.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+    ga_view_id = None
+    current_site_id = None
+
+    if 'site_id' in request.GET:
+        site_id = request.GET.get('site_id')
+        site = get_object_or_404(Site, id=site_id)
+        current_site_id = site.id
+        try:
+            ga_view_id = site.siteanalyticssettings.google_view_id
+        except AttributeError:
+            raise Http404("No Google Analytics Settings are associated with \
+                Site with id {}".format(site_id))
+    else:
+        try:
+            ga_view_id = request.site.siteanalyticssettings.google_view_id
+        except AttributeError:
+            ga_view_id = settings.GA_VIEW_ID
 
     return render(request, 'wagalytics/dashboard.html', {
-        'ga_view_id': settings.GA_VIEW_ID,
+        'ga_view_id': ga_view_id,
         'initial_start_date': initial_start_date,
+        'wagtail_sites': Site.objects.all(),
+        'current_site_id': current_site_id
     })
 
 def export(request):

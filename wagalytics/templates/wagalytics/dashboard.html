@@ -4,6 +4,9 @@
 {% block extra_css %}
     {% include "wagtailadmin/pages/_editor_css.html" %}
     {{ block.super }}
+    <script type="text/javascript">
+      window.ga_view_id = "{{ga_view_id}}";
+    </script>
     <script>
         (function(w,d,s,g,js,fs){
           g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(f){this.q.push(f);}};
@@ -92,6 +95,25 @@
                     </li>
                 </ul>
             </form>
+            {% if wagtail_sites|length > 1 %}
+              <form class="right" method="get" id="settings-site-switch" novalidate>
+                  <label for="id_site">
+                      Site:
+                  </label>
+                  <select name="site" id="id_site">
+                    {% for site in wagtail_sites %}
+                      <option
+                        value="{% url 'wagalytics_dashboard' %}?site_id={{site.id}}"
+                        {% if site.id == current_site_id %}
+                          selected=""
+                        {% endif %}
+                      >
+                        {{site}}
+                      </option>
+                    {% endfor %}
+                  </select>
+              </form>
+            {% endif %}
         </div>
     </header>
 

@@ -1,5 +1,8 @@
 from django.conf import settings
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from wagtail.contrib.settings.models import BaseSetting, register_setting
 
 try:
     from wagtail.core import hooks
@@ -22,6 +25,19 @@ except ImportError:  # fallback for Django <1.9
 from . import urls
 from . import views
 
+
+@register_setting
+class SiteAnalyticsSettings(BaseSetting):
+    google_view_id = models.CharField(
+        max_length=255,
+        help_text="Google Analytics View ID of the format 'ga:[0,9]+'"
+    )
+
+    def __repr__(self):
+        return "<SiteAnalytics site: {}, view_id: {} />".format(
+            self.site.hostname,
+            self.google_view_id
+        )
 
 @hooks.register('register_admin_urls')
 def register_admin_urls():
@@ -52,7 +68,7 @@ def editor_js():
         <script>
             function fetchGAResults(slug) {
                 params = {
-                    'ids': '%s',
+                    'ids': window.ga_view_id,
                     'start-date': 'yesterday',
                     'end-date': 'today',
                     'metrics': 'ga:pageviews',
@@ -77,7 +93,6 @@ def editor_js():
                 html_results += ' views in the last 24 hours.</fieldset></li>';
                 $('#settings ul[class="objects"]').append(html_results);
             }
-
             gapi.analytics.ready(function() {
                 $.get( "%s", function(data) {
                     gapi.analytics.auth.authorize({
@@ -85,8 +100,10 @@ def editor_js():
                     });
                     // Work out slug from the 'Live' link. TODO: make less fragile
                     slug = $('a[class="status-tag primary"]').attr('href');
-                    fetchGAResults(slug);
+                    if(window.ga_view_id) {
+                        fetchGAResults(slug);
+                    }
                 });
             })
         </script>
-        """ % (settings.GA_VIEW_ID, reverse('wagalytics_token'))
+        """ % (reverse('wagalytics_token'))
