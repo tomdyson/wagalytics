@@ -1,13 +1,13 @@
 from __future__ import absolute_import, unicode_literals
+from django.urls import path
+from django.views.decorators.cache import cache_page
+
 from .views import dashboard, token, export
 
-try:
-    from django.urls import re_path
-except ImportError:  # fallback for Django <2.0
-    from django.conf.urls import url as re_path
-
 urlpatterns = [
-    re_path(r'^dashboard/$', dashboard, name='wagalytics_dashboard'),
-    re_path(r'^token/$', token, name='wagalytics_token'),
-    re_path(r'^export/$', export, name='wagalytics_export'),
+    path('dashboard/', dashboard, name='wagalytics_dashboard'),
+    path('dashboard/<int:site_id>/', dashboard, name='wagalytics_site_dashboard'),
+    path('token/', token, name='wagalytics_token'),
+    path('token/<int:site_id>/', cache_page(3600)(token), name='wagalytics_site_token'),
+    path('export/', export, name='wagalytics_export'),
 ]
