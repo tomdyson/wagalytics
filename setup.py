@@ -4,6 +4,14 @@ from setuptools import setup, find_packages
 from wagtail.utils.setup import sdist
 from wagalytics import __version__
 
+
+testing_extras = [
+    'pytest==5.3.1',
+    'pytest-django==3.7.0',
+    'wagtail-factories==2.0.0',
+    'factory-boy==2.11.0',
+]
+
 setup(
     name='wagalytics',
     version=__version__,
@@ -35,5 +43,8 @@ setup(
     ],
     cmdclass={
         'sdist': sdist
-    }
+    },
+    extras_require={
+        'testing': testing_extras,
+    },
 )

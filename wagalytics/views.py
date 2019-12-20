@@ -5,7 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.utils import timezone
 from django.urls import reverse
 from collections import OrderedDict
@@ -71,16 +71,22 @@ def token(request, site_id=None):
     if hasattr(settings, 'WAGALYTICS_SETTINGS'):
         if site_id is None:
             site_id = request.site.id
+
         wagalytics_settings = settings.WAGALYTICS_SETTINGS[site_id]
+
         if wagalytics_settings.get('GA_KEY_CONTENT', None):
             access_token = get_access_token_from_str(wagalytics_settings['GA_KEY_CONTENT'])
-        else:
+        if wagalytics_settings.get('GA_KEY_FILEPATH', None):
             access_token = get_access_token(wagalytics_settings['GA_KEY_FILEPATH'])
+        else:
+            return HttpResponseForbidden()
     else:
         if (hasattr(settings, 'GA_KEY_CONTENT') and settings.GA_KEY_CONTENT != ''):
             access_token = get_access_token_from_str(settings.GA_KEY_CONTENT)
-        else:
+        if (hasattr(settings, 'GA_KEY_FILEPATH') and settings.GA_KEY_FILEPATH != ''):
             access_token = get_access_token(settings.GA_KEY_FILEPATH)
+        else:
+            return HttpResponseForbidden()
 
     return HttpResponse(access_token)
 
