@@ -93,3 +93,5 @@ This module doesn't help with recording user activity. See [the Wagtail docs](ht
  - Stefan Schärmeli
  - Alex Gleason
  - James Ramm
+ - Jake Kent
+ - Kalob Taulien
