@@ -1,11 +1,6 @@
-# Wagtail Analytics - NYPR Fork
+# Wagtail Analytics
 
-### Includes the following patches on top of upstream master:
-PR | Status
--- | ------
-Multisite Analytics Support | Open
-
-(Last Updated 12/17/19 for Wagalytics v2.6.1)
+(Last Updated 12/17/19 for Wagalytics v2.x)
 
 This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 1.4+.
 
@@ -34,28 +29,28 @@ If you get CryptoUnavailableError errors, you probably need to `pip install PyOp
 
 Ensure that your code snippet is included on each page you want to be tracked (likely by putting it in your base.html template.) (Admin > Property > Tracking Code)
 
-## Multisite Support 
+## Multisite Support
 
-To enable multisite support you'll need to update your Wagalytics settings _and_ have `wagtail.contrib.settings` installed. Sites can use a `GA_KEY_FILEPATH` or a `GA_KEY_CONTENT` key, but it's best not to use both. 
+To enable multisite support you'll need to update your Wagalytics settings _and_ have `wagtail.contrib.settings` installed. Sites can use a `GA_KEY_FILEPATH` or a `GA_KEY_CONTENT` key, but it's best not to use both.
 
-In the snippet below, you'll see `site_id`. This is the ID (Priamry Key) of your Wagtail Site. 
-```python 
-# Use either the GA_KEY_FILEPATH or the GA_KEY_CONTENT setting on your sites, 
+In the snippet below, you'll see `site_id`. This is the ID (Primary Key) of your Wagtail Site.
+```python
+# Use either the GA_KEY_FILEPATH or the GA_KEY_CONTENT setting on your sites,
 # but don't use both
 WAGALYTICS_SETTINGS = {
     site_id: {
         'GA_VIEW_ID': 'ga:xxxxxxxx',
         'GA_KEY_FILEPATH': '/path/to/secure/directory/your-key.json',
     },
-    site_id: { 
-        'GA_VIEW_ID': 'ga:xxxxxxxx', 
+    site_id: {
+        'GA_VIEW_ID': 'ga:xxxxxxxx',
         'GA_KEY_CONTENT': 'content_of_your_key.json',
 	}
 }
 ```
-For every Wagalytics site you add in your multisite `WAGALYTICS_SETTINGS` you'll need to make sure you have the proper GA View ID and API Key. One View ID and API Key won't work for all your sites automatically. 
+For every Wagalytics site you add in your multisite `WAGALYTICS_SETTINGS` you'll need to make sure you have the proper GA View ID and API Key. One View ID and API Key won't work for all your sites automatically.
 
-Here's a working example of _almost live_ WAGALYTICS_SETTINGS:
+Here's a working example of multisite WAGALYTICS_SETTINGS:
 
 ```python
 WAGALYTICS_SETTINGS = {
