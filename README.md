@@ -2,7 +2,7 @@
 
 (Last Updated 12/17/19 for Wagtail v2.x)
 
-This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 1.4+.
+This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 2.0+.
 
 ![Screenshot](screenshot.png)
 

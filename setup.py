@@ -35,10 +35,10 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        "wagtail>=0.8.7",
-        "Django>=1.7.1",
+        "wagtail>=2.0",
+        "Django>=2.0.13",
         "oauth2client",
-        "wagtailfontawesome>=1.0.2",
+        "wagtailfontawesome>=1.1.2",
         "pyexcel-ods==0.5.3"
     ],
     cmdclass={
