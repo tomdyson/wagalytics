@@ -1,5 +1,5 @@
 {% extends "wagtailadmin/base.html" %}
-{% load wagtailadmin_tags i18n staticfiles %}
+{% load wagtailadmin_tags i18n static %}
 
 {% block extra_css %}
     {% include "wagtailadmin/pages/_editor_css.html" %}
@@ -42,7 +42,7 @@
       }
 
       .wagalytics table.listing td.title:first-child {
-        width: 100%;
+        width: 90%;
       }
 
       footer .actions {
@@ -92,6 +92,16 @@
                     </li>
                 </ul>
             </form>
+            {% if site_switcher %}
+                <div class="right" style='margin-left: 20px;'>
+                    <form method="get" id="settings-site-switch" novalidate>
+                        <label for="{{ site_switcher.site.id_for_label }}">
+                            Site:
+                        </label>
+                        {{ site_switcher.site }}
+                    </form>
+                </div>
+            {% endif %}
         </div>
     </header>
 
@@ -127,7 +137,7 @@
         </ul>
     </footer>
 
-    <div hidden id="wagalytics-data" data-token="{% url 'wagalytics_token' %}" data-view-id="{{ ga_view_id }}">
+    <div hidden id="wagalytics-data" data-token="{% url 'wagalytics_site_token' site_id %}" data-view-id="{{ ga_view_id }}">
     </div>
 {% endblock %}
 
@@ -136,4 +146,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
     <script src="{% static 'wagalytics/vendors.bundle.js' %}"></script>
     <script src="{% static 'wagalytics/wagalytics.bundle.js' %}"></script>
+    {{ site_switcher.media.js }}
 {% endblock %}

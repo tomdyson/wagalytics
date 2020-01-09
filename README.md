@@ -1,6 +1,8 @@
 # Wagtail Analytics
 
-This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 1.4+.
+(Last Updated 12/17/19 for Wagtail v2.x)
+
+This module provides a simple dashboard of Google Analytics data, integrated into the Wagtail admin UI. Tested on Wagtail 2.0+.
 
 ![Screenshot](screenshot.png)
 
@@ -27,6 +29,44 @@ If you get CryptoUnavailableError errors, you probably need to `pip install PyOp
 
 Ensure that your code snippet is included on each page you want to be tracked (likely by putting it in your base.html template.) (Admin > Property > Tracking Code)
 
+## Multisite Support
+
+To enable multisite support you'll need to update your Wagalytics settings _and_ have `wagtail.contrib.settings` installed. Sites can use a `GA_KEY_FILEPATH` or a `GA_KEY_CONTENT` key, but it's best not to use both.
+
+In the snippet below, you'll see `site_id`. This is the ID (Primary Key) of your Wagtail Site.
+```python
+# Use either the GA_KEY_FILEPATH or the GA_KEY_CONTENT setting on your sites,
+# but don't use both
+WAGALYTICS_SETTINGS = {
+    site_id: {
+        'GA_VIEW_ID': 'ga:xxxxxxxx',
+        'GA_KEY_FILEPATH': '/path/to/secure/directory/your-key.json',
+    },
+    site_id: {
+        'GA_VIEW_ID': 'ga:xxxxxxxx',
+        'GA_KEY_CONTENT': 'content_of_your_key.json',
+	}
+}
+```
+For every Wagalytics site you add in your multisite `WAGALYTICS_SETTINGS` you'll need to make sure you have the proper GA View ID and API Key. One View ID and API Key won't work for all your sites automatically.
+
+Here's a working example of multisite WAGALYTICS_SETTINGS:
+
+```python
+WAGALYTICS_SETTINGS = {
+	# My default site. 2 is the site ID. This one uses GA_KEY_FILEPATH.
+    2: {
+        'GA_VIEW_ID': 'ga:xxxxxxxx',
+        'GA_KEY_FILEPATH': '/path/to/secure/directory/your-key.json',
+    },
+    # The secondary site. 3 is the Site ID. This one uses GA_KEY_CONTENT.
+    3: {
+        'GA_KEY_CONTENT': 'content_of_your_key.json',
+        'GA_VIEW_ID': 'ga:xxxxxxxx',
+    }
+}
+```
+
 ## Wagalytics Developers
 
 Developers will need to carry out the following steps after cloning wagalytics:
@@ -45,7 +85,7 @@ You will need to run `npm run build` anytime the javascript source is updated.
 
 ### Notes
 
-This module doesn't help with recording user activity. See [the Wagtail docs](http://docs.wagtail.io/en/v1.3.1/topics/writing_templates.html?highlight=analytics#varying-output-between-preview-and-live) and [StackOverflow](http://stackoverflow.com/a/1272312/181793) for pointers on how to avoid gathering data during preview and testing.
+This module doesn't help with recording user activity. See [the Wagtail docs](http://docs.wagtail.io/en/latest/topics/writing_templates.html?highlight=analytics#varying-output-between-preview-and-live) and [StackOverflow](http://stackoverflow.com/a/1272312/181793) for pointers on how to avoid gathering data during preview and testing.
 
 ### Contributors
 
@@ -53,3 +93,5 @@ This module doesn't help with recording user activity. See [the Wagtail docs](ht
  - Stefan Schärmeli
  - Alex Gleason
  - James Ramm
+ - Jake Kent
+ - Kalob Taulien
