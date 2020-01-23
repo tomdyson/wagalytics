@@ -76,14 +76,14 @@ def token(request, site_id=None):
 
         if wagalytics_settings.get('GA_KEY_CONTENT', None):
             access_token = get_access_token_from_str(wagalytics_settings['GA_KEY_CONTENT'])
-        if wagalytics_settings.get('GA_KEY_FILEPATH', None):
+        elif wagalytics_settings.get('GA_KEY_FILEPATH', None):
             access_token = get_access_token(wagalytics_settings['GA_KEY_FILEPATH'])
         else:
             return HttpResponseForbidden()
     else:
         if (hasattr(settings, 'GA_KEY_CONTENT') and settings.GA_KEY_CONTENT != ''):
             access_token = get_access_token_from_str(settings.GA_KEY_CONTENT)
-        if (hasattr(settings, 'GA_KEY_FILEPATH') and settings.GA_KEY_FILEPATH != ''):
+        elif (hasattr(settings, 'GA_KEY_FILEPATH') and settings.GA_KEY_FILEPATH != ''):
             access_token = get_access_token(settings.GA_KEY_FILEPATH)
         else:
             return HttpResponseForbidden()
