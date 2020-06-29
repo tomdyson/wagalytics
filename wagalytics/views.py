@@ -70,7 +70,7 @@ def token(request, site_id=None):
 
     if hasattr(settings, 'WAGALYTICS_SETTINGS'):
         if site_id is None:
-            site_id = request.site.id
+            site_id = Site.find_for_request(request).id
 
         wagalytics_settings = settings.WAGALYTICS_SETTINGS[site_id]
 
@@ -102,7 +102,7 @@ def dashboard(request, site_id=None):
     if not site_id and (hasattr(settings, 'WAGALYTICS_SETTINGS') and len(settings.WAGALYTICS_SETTINGS) > 0):
         # This site has multi-site wagalytics enabled.
         # Redirect user to ^analytics/dashboard/{site_id}/$
-        return redirect('wagalytics_site_dashboard', site_id=request.site.id)
+        return redirect('wagalytics_site_dashboard', site_id=Site.find_for_request(request).id)
 
     initial_start_date = (timezone.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
     ga_view_id = None
@@ -135,7 +135,7 @@ def dashboard(request, site_id=None):
             ga_view_id = settings.WAGALYTICS_SETTINGS[site.id]['GA_VIEW_ID']
     else:
         # The regular ^analytics/dashboard/$ url is being viewed.
-        site = Site.objects.get(hostname=request.site.hostname)
+        site = Site.objects.get(hostname=Site.find_for_request(request).hostname)
         try:
             ga_view_id = settings.GA_VIEW_ID
         except AttributeError:
