@@ -54,7 +54,7 @@ def get_access_token_from_str(ga_key_content):
     SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
 
     # Construct a credentials objects from the key data and OAuth2 scope.
-    keyDict = json.loads(ga_key_content.replace('\n', '').replace('\r', ''))
+    keyDict = json.loads(ga_key_content, strict=False)
     _credentials = ServiceAccountCredentials.from_json_keyfile_dict(
         keyDict, SCOPE)
 
